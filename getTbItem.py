@@ -41,7 +41,7 @@ def write_file(patch_name, product_list):
 
     with open(patch_name + '.csv', 'wb') as csvfile:
         spam_writer = csv.writer(csvfile, dialect='excel')
-        spam_writer.writerow([u'宝贝名称', u'店铺名称', u'交易数量', u'评论数量', u'售价'])
+        spam_writer.writerow([u'宝贝名称'.encode(code), u'店铺名称'.encode(code), u'交易数量'.encode(code), u'评论数量'.encode(code), u'售价'.encode(code)])
         for tb_product in product_list:
             try:
                 spam_writer.writerow([tb_product.title.encode(code), tb_product.shop.encode(code), tb_product.trans.encode(code), tb_product.comment.encode(code), tb_product.price.encode(code)])
@@ -105,8 +105,13 @@ if __name__ == '__main__':
 
     product_list = get_product_list(soup)
 
+    print 'total page ', page_num
+
     if page_num > 1:
         for i in range(1, page_num):
+            if i % 50 == 0:
+                print 'current page ', i
+
             url = init_url + keyword + '&s=' + str(i * 60)
             soup = get_soup(url)
             product_list += get_product_list(soup)
