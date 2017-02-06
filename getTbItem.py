@@ -11,11 +11,12 @@ import os
 
 class TbProduct(object):
 
-    def __init__(self, title, shop, trans, comment):
+    def __init__(self, title, shop, trans, comment, price):
         self.title = title
         self.shop = shop
         self.trans = trans
         self.comment = comment
+        self.price = price
 
 
 def get_soup(url):
@@ -28,7 +29,7 @@ def get_product_list(soup):
         if len(product.select('.productImg-wrap')) > 0:
             try:
                 tb_product = TbProduct(product.select('.productTitle')[0].select('a')[0].text, product.select('.productShop')[0].select('a')[0].text,
-                                    product.select('.productStatus')[0].select('em')[0].text, product.select('.productStatus')[0].select('a')[0].text)
+                                    product.select('.productStatus')[0].select('em')[0].text, product.select('.productStatus')[0].select('a')[0].text, product.select('.productPrice')[0].select('em')[0].get('title'))
                 temp_list.append(tb_product)
             except:
                 print 'error : ', product
@@ -40,11 +41,12 @@ def write_file(patch_name, product_list):
 
     with open(patch_name + '.csv', 'wb') as csvfile:
         spam_writer = csv.writer(csvfile, dialect='excel')
+        spam_writer.writerow([u'宝贝名称', u'店铺名称', u'交易数量', u'评论数量', u'售价'])
         for tb_product in product_list:
             try:
-                spam_writer.writerow([tb_product.title.encode(code), tb_product.shop.encode(code), tb_product.trans.encode(code), tb_product.comment.encode(code)])
-            except:
-                pass
+                spam_writer.writerow([tb_product.title.encode(code), tb_product.shop.encode(code), tb_product.trans.encode(code), tb_product.comment.encode(code), tb_product.price.encode(code)])
+            except RuntimeError as err:
+                print str(err)
 
     print 'write', patch_name + '.csv done'
 
@@ -105,7 +107,7 @@ if __name__ == '__main__':
 
     if page_num > 1:
         for i in range(1, page_num):
-            url = init_url + keyword + '&s=' + str(i*60)
+            url = init_url + keyword + '&s=' + str(i * 60)
             soup = get_soup(url)
             product_list += get_product_list(soup)
 
